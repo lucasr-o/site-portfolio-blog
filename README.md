@@ -91,7 +91,7 @@ npm ci
 cat > .env.local <<'EOF'
 ADMIN_USER=admin_lucas_554_tatu
 ADMIN_PASSWORD=<nova-senha-forte>
-ADMIN_GATE=3d1233a738f83bea4e900dc0ed6f754e48abc62f580b3504
+ADMIN_GATE=<GATE>
 EOF
 chmod 600 .env.local
 
