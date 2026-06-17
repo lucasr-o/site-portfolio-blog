@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750" fill="none" role="img" aria-label="alg=none JWT forgery">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a1011"/>
+      <stop offset="1" stop-color="#05080a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.72" cy="0.28" r="0.6">
+      <stop offset="0" stop-color="#3ee0e6" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#3ee0e6" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#3ee0e6" stroke-opacity="0.06" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="750" fill="url(#bg)"/>
+  <rect width="1200" height="750" fill="url(#grid)"/>
+  <rect width="1200" height="750" fill="url(#glow)"/>
+  <g font-family="ui-monospace, monospace" font-size="40" fill="#cdd6d4">
+    <text x="90" y="300" fill="#5d6b69">{ "alg":</text>
+    <text x="300" y="300" fill="#ff5d6c" font-weight="700">"none"</text>
+    <text x="470" y="300" fill="#5d6b69">,</text>
+    <text x="90" y="370" fill="#5d6b69">  "sub":</text>
+    <text x="300" y="370" fill="#3ee0e6">"root"</text>
+    <text x="90" y="440" fill="#5d6b69">}</text>
+    <text x="90" y="560" fill="#54e6a0" font-size="34">→ 200 OK · 14 admin records ✓</text>
+  </g>
+  <g stroke="#3ee0e6" stroke-opacity="0.5" stroke-width="2">
+    <line x1="90" y1="610" x2="1110" y2="610"/>
+  </g>
+  <text x="90" y="660" font-family="Georgia, serif" font-style="italic" font-size="30" fill="#8a9794">forging a token nobody signed</text>
+  <rect x="1050" y="80" width="60" height="14" rx="3" fill="#3ee0e6" fill-opacity="0.5"/>
+  <rect x="960" y="110" width="150" height="14" rx="3" fill="#3ee0e6" fill-opacity="0.25"/>
+</svg>
